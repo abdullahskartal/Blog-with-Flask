@@ -34,6 +34,11 @@ def index():
 def about():
     return render_template("about.html")
 
+@app.route("/dashboard")
+def dashboard():
+    return render_template("dashboard.html")
+
+
 # Kayıt olma
 @app.route("/register",methods = ["GET","POST"])
 def register():
