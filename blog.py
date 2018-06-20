@@ -17,17 +17,17 @@ def login_required(f):
     return decorated_function
 # User Register Form
 class RegisterForm(Form):
-    name = StringField("İsim:", validators=[validators.Length(min=4,max=32)])
-    username = StringField("Kullanıcı Adı:", validators=[validators.Length(min=5,max=18)])
-    email = StringField("Email Adresi:", validators=[validators.Email(message="Lütfen geçerli bir email giriniz.")])
-    password = PasswordField("Şifrenizi giriniz:",validators=[
-        validators.DataRequired("Lütfen bir parola giriniz:"),
-        validators.EqualTo(fieldname="confirm",message="Parolanız uyuşmuyor.")
+    name = StringField("Name:", validators=[validators.Length(min=4,max=32)])
+    username = StringField("Username:", validators=[validators.Length(min=5,max=18)])
+    email = StringField("E-Mail:", validators=[validators.Email(message="Please enter a valid e-mail.")])
+    password = PasswordField("Password:",validators=[
+        validators.DataRequired("Please enter your password.:"),
+        validators.EqualTo(fieldname="confirm",message="Your password does not match.")
         ])
-    confirm = PasswordField("Parola doğrula")
+    confirm = PasswordField("Verify password")
 class LoginForm(Form):
-    username = StringField("Kullanıcı Adı:")
-    password = PasswordField("Parola:")
+    username = StringField("Username:")
+    password = PasswordField("Password:")
 app = Flask(__name__)
 app.secret_key = "akblog"
 app.config["MYSQL_HOST"] = "localhost"
@@ -69,7 +69,7 @@ def register():
         mysql.connection.commit()
 
         cursor.close()
-        flash("Başarıyla kayıt oldunuz.","success")
+        flash("You are successfully registered..","success")
         
         return redirect(url_for("login"))
     else:
@@ -96,16 +96,16 @@ def login():
             data = cursor.fetchone()
             real_password = data ["password"]
             if sha256_crypt.verify(password_entered,real_password):
-                flash("Başarıyla giriş yaptınız.","success")
+                flash("You are successfully logged in.","success")
                 session["logged_in"] = True
                 session["username"] = username
 
                 return redirect (url_for("index"))
             else:
-                flash("Parolanızı kontrol ediniz.","danger")
+                flash("Please check your password.","danger")
                 return redirect (url_for("login"))
         else:
-            flash("Böyle bir kullanıcı bulunmuyor.","danger")
+            flash("No such user was found.","danger")
             return redirect (url_for("login"))
 
     return render_template("login.html",form = form)
