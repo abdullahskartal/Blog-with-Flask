@@ -80,6 +80,9 @@ def login():
             real_password = data ["password"]
             if sha256_crypt.verify(password_entered,real_password):
                 flash("Başarıyla giriş yaptınız.","success")
+                session["logged_in"] = True
+                session["username"] = username
+
                 return redirect (url_for("index"))
             else:
                 flash("Parolanızı kontrol ediniz.","danger")
@@ -89,6 +92,14 @@ def login():
             return redirect (url_for("login"))
 
     return render_template("login.html",form = form)
+
+# Logout
+
+@app.route("/logout")
+def logout():
+    session.clear()
+    return redirect(url_for("index"))
+
 if __name__ == "__main__":
     app.run(debug=True)
     
