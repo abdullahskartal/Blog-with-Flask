@@ -13,3 +13,4 @@ Personal blog with Python with Flask
 - [Wtforms](https://wtforms.readthedocs.io/en/stable/)
 - [Wtforms for Flask](https://flask-wtf.readthedocs.io/en/stable/)
 - [Flash Messages](http://flask.pocoo.org/docs/0.12/patterns/flashing/)
+- [Decorators for Flask](http://flask.pocoo.org/docs/0.12/patterns/viewdecorators/)
