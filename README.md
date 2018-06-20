@@ -1,5 +1,5 @@
 # Blog-with-Flask
-Personal blog with Python with Flask
+Personal blog with Python Flask
 ## Install
     $ pip install flask
 ## Requirements
