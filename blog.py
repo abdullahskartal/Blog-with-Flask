@@ -142,7 +142,19 @@ class ArticleForm(Form):
     title = StringField("Article Title", validators=[validators.length(min=5,max=100)])
     content = TextAreaField("Article Content",validators=[validators.length(min=10)])
 
+# Article Page
+@app.route("/articles")
+def articles():
+    cursor = mysql.connection.cursor()
+    
+    sorgu = "SELECT * FROM articles"
 
+    result = cursor.execute(sorgu)
+    if result > 0:
+        articles = cursor.fetchall()
+        return render_template("articles.html",articles = articles)
+    else:
+        return render_template("articles.html")
 if __name__ == "__main__":
     app.run(debug=True)
     
