@@ -165,6 +165,21 @@ def articles():
         return render_template("articles.html",articles = articles)
     else:
         return render_template("articles.html")
+
+# Detail Article Page
+@app.route("/article/<string:id>")
+def article(id):
+    cursor = mysql.connection.cursor()
+
+    sorgu = "SELECT * FROM articles WHERE id = %s"
+
+    result = cursor.execute(sorgu,(id,))
+
+    if result > 0:
+        article = cursor.fetchone()
+        return render_template("article.html",article = article)
+    else:
+        return render_template("article.html")
 if __name__ == "__main__":
     app.run(debug=True)
     
