@@ -180,6 +180,27 @@ def article(id):
         return render_template("article.html",article = article)
     else:
         return render_template("article.html")
+
+# Delete Article
+@app.route("/delete/<string:id>")
+@login_required
+def delete(id):
+    cursor = mysql.connection.cursor()
+
+    sorgu = "SELECT * FROM articles WHERE author = %s and id =%s"
+
+    result = cursor.execute(sorgu,(session["username"],id))
+
+    if result > 0:
+        sorgu2 = "DELETE FROM articles WHERE id = %s"
+
+        cursor.execute(sorgu2,(id,))
+        
+        mysql.connection.commit()
+        return redirect(url_for("dashboard"))
+    else:
+        flash("There is no article here or you do not have permission to delete this article.","danger")
+        return redirect(url_for("index"))
 if __name__ == "__main__":
     app.run(debug=True)
     
