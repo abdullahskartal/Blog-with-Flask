@@ -48,7 +48,17 @@ def about():
 @app.route("/dashboard")
 @login_required
 def dashboard():
-    return render_template("dashboard.html")
+    cursor = mysql.connection.cursor()
+    
+    sorgu = "SELECT * FROM articles WHERE author = %s"
+
+    result = cursor.execute(sorgu,(session["username"],))
+    
+    if result > 0:
+        articles = cursor.fetchall()
+        return render_template("dashboard.html",articles = articles)
+    else:
+        return render_template("dashboard.html")
 
 
 # Register
