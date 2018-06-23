@@ -201,6 +201,41 @@ def delete(id):
     else:
         flash("There is no article here or you do not have permission to delete this article.","danger")
         return redirect(url_for("index"))
+
+# Update Article
+@app.route("/edit/<string:id>",methods = ["GET","POST"])
+@login_required
+def update(id):
+    if request.method == "GET":
+        cursor = mysql.connection.cursor()
+
+        sorgu = "SELECT * FROM articles WHERE id = %s and author = %s"
+
+        result = cursor.execute(sorgu,(id,session["username"]))
+        
+        if result == 0:
+            flash("There is no article here or you do not have permission to delete this article.","danger")
+            return redirect(url_for("index"))
+        else:
+            article = cursor.fetchone()
+            form = ArticleForm()
+
+            form.title.data = article["title"]
+            form.content.data = article["content"]
+            return render_template("update.html", form = form)
+    else:
+        form = ArticleForm(request.form)
+        newTitle = form.title.data
+        newContent = form.content.data
+
+        sorgu2 = "UPDATE articles SET title = %s, content = %s WHERE id = %s"
+
+        cursor = mysql.connection.cursor()
+        cursor.execute(sorgu2,(newTitle,newContent,id))
+        mysql.connection.commit()
+
+        flash("The article has been successfully updated.","success")
+        return redirect(url_for("dashboard"))
 if __name__ == "__main__":
     app.run(debug=True)
     
