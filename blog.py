@@ -84,11 +84,7 @@ def register():
         return redirect(url_for("login"))
     else:
         return render_template("register.html",form = form)
-'''
-@app.route("/article/<string:id>")
-def detail(id):
-    return "Article id"+ id
-'''
+
 #Login
 @app.route("/login",methods = ["GET","POST"])
 def login():
@@ -121,7 +117,6 @@ def login():
     return render_template("login.html",form = form)
 
 # Logout
-
 @app.route("/logout")
 def logout():
     session.clear()
@@ -147,6 +142,7 @@ def addarticle():
         flash("The article has been successfully added.","success")
         return redirect(url_for("dashboard"))
     return render_template("addarticle.html",form = form)
+
 # Article Form
 class ArticleForm(Form):
     title = StringField("Article Title", validators=[validators.length(min=5,max=100)])
