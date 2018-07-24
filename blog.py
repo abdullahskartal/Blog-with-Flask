@@ -1,10 +1,83 @@
-from flask import Flask,render_template,flash,redirect,url_for,session,logging,request
-from flask_mysqldb import MySQL
-from wtforms import Form,StringField,TextAreaField,validators,PasswordField
-from passlib.hash import sha256_crypt
-from functools import wraps
+from flask import Flask, render_template, url_for, flash, redirect
+from flask_sqlalchemy import SQLAlchemy
+from forms import RegisterForm,LoginForm
+from datetime import datetime
 
-# Decorator
+app = Flask(__name__)
+app.secret_key = "5791628bb0b13ce0c676dfde280ba245"
+app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:////Users/Abdullah/Desktop/AKBLOG/blog.db"
+db = SQLAlchemy(app)
+
+
+class User (db.Model):
+    
+    id = db.Column(db.Integer,primary_key = True)
+    username = db.Column(db.String(20),unique = True, nullable = False)
+    email = db.Column(db.String(120),unique = True, nullable = False)
+    image_file = db.Column(db.String(120),nullable = False, default = "default.jpg")
+    password = db.Column(db.String(60),nullable = False)
+    posts = db.relationship("Post",backref = "author",lazy = True)
+
+
+    def __repr__(self):
+        return f"User('{self.username}','{self.email}','{self.image_file}')"        
+
+class Post(db.Model):
+    id = db.Column(db.Integer,primary_key = True)
+    title = db.Column(db.String(100),nullable = False)
+    date_posted = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    content = db.Column(db.Text,nullable = False)
+    user_id = db.Column(db.Integer,db.ForeignKey("user.id"),nullable = False)
+
+    def __repr__(self):
+        return f"Post('{self.title}','{self.date_posted})"
+    
+posts = [
+        {
+            'author' : 'Abdullah Kartal',
+            'title': 'Article 1',
+            'content' : 'First Article Content',
+            'date_posted' : '21 July 2018'
+        },
+{
+            'author' : 'Suleyman Cakir',
+            'title': 'Article 2',
+            'content' : 'Second Article Content',
+            'date_posted' : '22 July 2018'
+            }
+]
+# Index
+@app.route("/")
+def index():
+    return render_template("index.html",posts = posts)
+# About
+@app.route("/about")
+def about():
+    return render_template("about.html",title = 'About')
+# Register
+@app.route("/register",methods=["GET","POST"])
+def register():
+    form = RegisterForm()
+    if form.validate_on_submit():
+        flash("You are successfully registered..","success")
+        return redirect(url_for("index"))
+    return render_template("register.html",title = "Register",form=form)
+# Login
+@app.route("/login",methods=["GET","POST"])
+def login():
+    form = LoginForm()
+    if form.validate_on_submit():
+        if form.email.data == "abdullah@deneme.com" and form.password.data == "12345":
+            flash("You are successfully log in","success")
+            return redirect(url_for("index"))
+        else:
+            flash("Check your username or password.","danger")
+    return render_template("login.html",title = "Login",form=form)
+    
+if __name__ == "__main__":
+    app.run(debug=True) 
+
+'''# Decorator
 def login_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
@@ -15,36 +88,7 @@ def login_required(f):
             return redirect(url_for("login"))
             
     return decorated_function
-# User Register Form
-class RegisterForm(Form):
-    name = StringField("Name:", validators=[validators.Length(min=4,max=32)])
-    username = StringField("Username:", validators=[validators.Length(min=5,max=18)])
-    email = StringField("E-Mail:", validators=[validators.Email(message="Please enter a valid e-mail.")])
-    password = PasswordField("Password:",validators=[
-        validators.DataRequired("Please enter your password.:"),
-        validators.EqualTo(fieldname="confirm",message="Your password does not match.")
-        ])
-    confirm = PasswordField("Verify password")
-class LoginForm(Form):
-    username = StringField("Username:")
-    password = PasswordField("Password:")
-app = Flask(__name__)
-app.secret_key = "akblog"
-app.config["MYSQL_HOST"] = "localhost"
-app.config["MYSQL_USER"] = "root"
-app.config["MYSQL_PASSWORD"] = ""
-app.config["MYSQL_DB"] = "akblog"
-app.config["MYSQL_CURSORCLASS"] = "DictCursor"
-
-mysql = MySQL(app)
-
-@app.route("/")
-def index():
-    return render_template("index.html")
-@app.route("/about")
-def about():
-    return render_template("about.html")
-
+    
 @app.route("/dashboard")
 @login_required
 def dashboard():
@@ -59,62 +103,6 @@ def dashboard():
         return render_template("dashboard.html",articles = articles)
     else:
         return render_template("dashboard.html")
-
-
-# Register
-@app.route("/register",methods = ["GET","POST"])
-def register():
-    form = RegisterForm(request.form)
-    if request.method == "POST" and form.validate():
-        name = form.name.data
-        username = form.username.data
-        email = form.email.data
-        password = sha256_crypt.encrypt(form.password.data)
-
-        cursor = mysql.connection.cursor()
-
-        sorgu = "Insert into users(name,email,username,password) VALUES(%s,%s,%s,%s)"
-
-        cursor.execute(sorgu,(name,email,username,password))
-        mysql.connection.commit()
-
-        cursor.close()
-        flash("You are successfully registered..","success")
-        
-        return redirect(url_for("login"))
-    else:
-        return render_template("register.html",form = form)
-
-#Login
-@app.route("/login",methods = ["GET","POST"])
-def login():
-    form = LoginForm(request.form)
-    if request.method == "POST":
-        username = form.username.data
-        password_entered = form.password.data
-
-        cursor = mysql.connection.cursor()
-
-        sorgu = "Select * From users where username = %s"
-        
-        result = cursor.execute(sorgu,(username,))
-        if result > 0:
-            data = cursor.fetchone()
-            real_password = data ["password"]
-            if sha256_crypt.verify(password_entered,real_password):
-                flash("You are successfully logged in.","success")
-                session["logged_in"] = True
-                session["username"] = username
-
-                return redirect (url_for("index"))
-            else:
-                flash("Please check your password.","danger")
-                return redirect (url_for("login"))
-        else:
-            flash("No such user was found.","danger")
-            return redirect (url_for("login"))
-
-    return render_template("login.html",form = form)
 
 # Logout
 @app.route("/logout")
@@ -143,10 +131,7 @@ def addarticle():
         return redirect(url_for("dashboard"))
     return render_template("addarticle.html",form = form)
 
-# Article Form
-class ArticleForm(Form):
-    title = StringField("Article Title", validators=[validators.length(min=5,max=100)])
-    content = TextAreaField("Article Content",validators=[validators.length(min=10)])
+
 
 # Article Page
 @app.route("/articles")
@@ -253,7 +238,4 @@ def search():
             articles = cursor.fetchall()
 
             return render_template("articles.html", articles = articles)
-
-if __name__ == "__main__":
-    app.run(debug=True)
-    
+'''
