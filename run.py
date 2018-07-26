@@ -3,18 +3,7 @@ from blog import app
 if __name__ == "__main__":
     app.run(debug=True) 
 
-'''# Decorator
-def login_required(f):
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        if "logged_in" in session:
-            return f(*args, **kwargs)
-        else:
-            flash("Please login for this page.","danger")
-            return redirect(url_for("login"))
-            
-    return decorated_function
-    
+''' 
 @app.route("/dashboard")
 @login_required
 def dashboard():
@@ -29,12 +18,6 @@ def dashboard():
         return render_template("dashboard.html",articles = articles)
     else:
         return render_template("dashboard.html")
-
-# Logout
-@app.route("/logout")
-def logout():
-    session.clear()
-    return redirect(url_for("index"))
 
 # Add Article
 @app.route("/addarticle",methods = ["GET","POST"])
@@ -56,8 +39,6 @@ def addarticle():
         flash("The article has been successfully added.","success")
         return redirect(url_for("dashboard"))
     return render_template("addarticle.html",form = form)
-
-
 
 # Article Page
 @app.route("/articles")

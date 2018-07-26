@@ -2,6 +2,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField,PasswordField,SubmitField,BooleanField,TextAreaField
 from wtforms.validators import DataRequired,Length,Email,EqualTo,ValidationError
 from blog.models import User
+from flask_login import current_user
 
 # User Register Form
 class RegisterForm(FlaskForm):
@@ -20,6 +21,7 @@ class RegisterForm(FlaskForm):
         email = User.query.filter_by(email = email.data).first()
         if email:
             raise ValidationError("The email is already taken. Choose another one.")
+
 # User Login Form
 class LoginForm(FlaskForm):
     email = StringField("Email:",validators=[DataRequired(),Email()])
@@ -30,3 +32,20 @@ class LoginForm(FlaskForm):
 class ArticleForm(FlaskForm):
     title = StringField("Article Title", validators=[Length(min=5,max=100)])
     content = TextAreaField("Article Content",validators=[Length(min=10)])
+
+class UpdateAccount(FlaskForm):
+    username = StringField("Username:", validators=[DataRequired(),Length(min=2,max=35)])
+    email = StringField("E-Mail:", validators=[DataRequired(),Email(message="Please enter a valid e-mail.")])
+    submit = SubmitField("Update")
+
+    def validate_username(self,username):
+        if username.data != current_user.username:
+            user = User.query.filter_by(username = username.data).first()
+            if user:
+                raise ValidationError("The username is already taken. Choose another one.")
+
+    def validate_email(self,email):
+        if email.data != current_user.email:
+            email = User.query.filter_by(email = email.data).first()
+            if email:
+                raise ValidationError("The email is already taken. Choose another one.")
