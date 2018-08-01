@@ -3,28 +3,14 @@ import secrets
 from PIL import Image
 from flask import render_template, url_for, flash, redirect,request
 from blog.models import User, Post
-from blog.forms import RegisterForm,LoginForm,UpdateAccount
+from blog.forms import RegisterForm,LoginForm,UpdateAccount,ArticleForm
 from blog import app, db, bcrypt
 from flask_login import login_user,current_user,logout_user,login_required
 
-posts = [
-        {
-            'author' : 'Abdullah Kartal',
-            'title': 'Article 1',
-            'content' : 'First Article Content',
-            'date_posted' : '21 July 2018'
-        },
-{
-            'author' : 'Suleyman Cakir',
-            'title': 'Article 2',
-            'content' : 'Second Article Content',
-            'date_posted' : '22 July 2018'
-            }
-]
 # Index
 @app.route("/")
 def index():
-    return render_template("index.html",posts = posts)
+    return render_template("index.html")
 
 # About
 @app.route("/about")
@@ -74,7 +60,7 @@ def save_picture(form_picture):
     random_hex = secrets.token_hex(8)
     _,f_ext = os.path.splitext(form_picture.filename)
     picture_fn = random_hex + f_ext
-    picture_path = os.path.join("static\\profile",picture_fn)
+    picture_path = os.path.join(app.root_path,"static\\profile",picture_fn)
     
     output_size =(125,125)
     i = Image.open(form_picture)
@@ -102,3 +88,29 @@ def account():
         form.email.data = current_user.email
     image_file = url_for("static", filename = "profile/" + current_user.image_file)
     return render_template("account.html",title = "Account",image_file = image_file,form = form)
+# Dashboard Page
+@app.route("/dashboard")
+@login_required
+def dashboard():
+    articles = Post.query.all()
+    return render_template("dashboard.html",articles = articles)
+    
+# Add Article Page
+@app.route("/addarticle",methods =["GET","POST"])
+@login_required
+def addarticle():
+    form = ArticleForm()
+    if form.validate_on_submit():
+        post = Post(title=form.title.data, content = form.content.data, author = current_user)
+        db.session.add(post)
+        db.session.commit()
+        flash("Your article has been created.","success")
+        return redirect(url_for("dashboard"))
+    return render_template("addarticle.html",title="New Article",form = form)
+
+# Articles Page
+@app.route("/articles")
+@login_required
+def articles():
+    articles = Post.query.all()
+    return render_template("articles.html",articles = articles)

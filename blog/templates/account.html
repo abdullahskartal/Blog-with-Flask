@@ -1,4 +1,5 @@
 {% extends "layout.html" %}
+
 {% block body %}
     <div class="content-section">
         <div class="media">
@@ -40,11 +41,11 @@
                                         {% endif %}
                          </div>
                          <div class="form-group">
-                                {{form.picture.label()}}
-                                {{form.picture(class = "form-control-file")}}
+                                {{ form.picture.label() }}
+                                {{ form.picture(class= "form-control-file") }}
                                 {% if form.picture.errors %}
                                         {% for error in form.picture.errors %}
-                                                <span class="text-danger">{{error}}</span></div>
+                                                <span class="text-danger">{{ error }}</span></div><br>
                                         {% endfor %}
                                 {% endif %}
                 </fieldset>
@@ -53,5 +54,4 @@
                 </div>
                 </form>
     </div>
-
 {% endblock body %}

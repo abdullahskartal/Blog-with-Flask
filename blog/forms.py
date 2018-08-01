@@ -31,8 +31,9 @@ class LoginForm(FlaskForm):
 
 # Article Form
 class ArticleForm(FlaskForm):
-    title = StringField("Article Title", validators=[Length(min=5,max=100)])
-    content = TextAreaField("Article Content",validators=[Length(min=10)])
+    title = StringField("Article Title", validators=[DataRequired()])
+    content = TextAreaField("Article Content",validators=[DataRequired()])
+    submit = SubmitField("Post")
 # UpdateAccount Form
 class UpdateAccount(FlaskForm):
     username = StringField("Username:", validators=[DataRequired(),Length(min=2,max=35)])
