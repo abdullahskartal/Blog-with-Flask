@@ -135,3 +135,14 @@ def edit_article(article_id):
         form.title.data = article.title
         form.content.data = article.content
     return render_template("addarticle.html",title="Edit Article",form = form, legend = "Edit Article")
+
+@app.route("/delete/<int:article_id>",methods =["POST","GET"])
+@login_required
+def delete_article(article_id):
+    article = Article.query.get_or_404(article_id)
+    if article.author != current_user:
+        abort(403)
+    db.session.delete(article)
+    db.session.commit()
+    flash("Your article has been deleted.","success")
+    return redirect(url_for("dashboard"))
