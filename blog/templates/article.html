@@ -5,9 +5,9 @@
 
 <h4>{{article.title}}</h4>
 <hr>
-Author : {{article.author}}
+Author : {{article.author.username}}
 <hr>
-Date : {{article.created_date}}
+Date : {{article.date_posted.strftime("%Y-%m-%d")}}
 <hr>
 {{article.content | safe}}
 

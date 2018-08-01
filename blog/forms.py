@@ -4,6 +4,7 @@ from wtforms.validators import DataRequired,Length,Email,EqualTo,ValidationError
 from blog.models import User
 from flask_login import current_user
 from flask_wtf.file import FileAllowed,FileField
+
 # User Register Form
 class RegisterForm(FlaskForm):
     username = StringField("Username:", validators=[DataRequired(),Length(min=2,max=35)])

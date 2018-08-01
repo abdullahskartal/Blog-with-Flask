@@ -1,8 +1,8 @@
 import os
 import secrets
 from PIL import Image
-from flask import render_template, url_for, flash, redirect,request
-from blog.models import User, Post
+from flask import render_template, url_for, flash, redirect,request,abort
+from blog.models import User, Article
 from blog.forms import RegisterForm,LoginForm,UpdateAccount,ArticleForm
 from blog import app, db, bcrypt
 from flask_login import login_user,current_user,logout_user,login_required
@@ -92,25 +92,46 @@ def account():
 @app.route("/dashboard")
 @login_required
 def dashboard():
-    articles = Post.query.all()
+    articles = Article.query.all()
     return render_template("dashboard.html",articles = articles)
-    
 # Add Article Page
 @app.route("/addarticle",methods =["GET","POST"])
 @login_required
 def addarticle():
     form = ArticleForm()
     if form.validate_on_submit():
-        post = Post(title=form.title.data, content = form.content.data, author = current_user)
-        db.session.add(post)
+        article = Article(title=form.title.data, content = form.content.data, author = current_user)
+        db.session.add(article)
         db.session.commit()
         flash("Your article has been created.","success")
         return redirect(url_for("dashboard"))
-    return render_template("addarticle.html",title="New Article",form = form)
+    return render_template("addarticle.html",title="New Article",form = form, legend = "New Article")
 
 # Articles Page
 @app.route("/articles")
 @login_required
 def articles():
-    articles = Post.query.all()
+    articles = Article.query.all()
     return render_template("articles.html",articles = articles)
+@app.route("/article/<int:article_id>")
+def article(article_id):
+    article = Article.query.get_or_404(article_id)
+    return render_template("article.html",title = article.title,article=article)
+# Edit Article
+@app.route("/edit/<int:article_id>",methods =["GET","POST"])
+@login_required
+def edit_article(article_id):
+    article = Article.query.get_or_404(article_id)
+    if article.author != current_user:
+        abort(403)
+    form = ArticleForm()
+    if form.validate_on_submit():
+        article.title = form.title.data
+        article.content = form.content.data
+        db.session.commit()
+        flash("Your article has been successfully edited.","success")
+        return redirect(url_for("article",article_id = article.id))
+    elif request.method == "GET":
+        form.title.data = article.title
+        form.content.data = article.content
+    return render_template("addarticle.html",title="Edit Article",form = form, legend = "Edit Article")

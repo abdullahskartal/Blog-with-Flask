@@ -22,6 +22,7 @@
     </thead>
     <tbody>
       {% for article in articles  %}
+      {% if current_user.username == article.author.username %}
         <tr>
           <th scope="row">{{article.id}}</th>
           <td><a href="/article/{{article.id}}">{{article.title}}</a></td>
@@ -30,7 +31,7 @@
           <td><a href="/edit/{{article.id}}" class="btn btn-danger">Edit</a></td>
           <td><a href="/delete/{{article.id}}" class="btn btn-danger">Delete</a></td>
         </tr>
-      
+        {% endif %}
       {% endfor %}
       
       
