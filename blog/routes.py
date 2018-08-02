@@ -113,7 +113,6 @@ def addarticle():
 
 # Articles Page
 @app.route("/articles")
-@login_required
 def articles():
     articles = Article.query.all()
     return render_template("articles.html",articles = articles)
