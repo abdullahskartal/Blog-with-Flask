@@ -35,8 +35,9 @@ class ArticleForm(FlaskForm):
     title = StringField("Article Title", validators=[DataRequired()])
     content = TextAreaField("Article Content",validators=[DataRequired()])
     submit = SubmitField("Post")
+
 # UpdateAccount Form
-class UpdateAccount(FlaskForm):
+class UpdateAccountForm(FlaskForm):
     username = StringField("Username:", validators=[DataRequired(),Length(min=2,max=35)])
     email = StringField("E-Mail:", validators=[DataRequired(),Email(message="Please enter a valid e-mail.")])
     picture = FileField("Update Profile Picture",validators=[FileAllowed(["jpg","png"])])
@@ -47,8 +48,25 @@ class UpdateAccount(FlaskForm):
             user = User.query.filter_by(username = username.data).first()
             if user:
                 raise ValidationError("The username is already taken. Choose another one.")
+
     def validate_email(self,email):
         if email.data != current_user.email:
             email = User.query.filter_by(email = email.data).first()
             if email:
                 raise ValidationError("The email is already taken. Choose another one.")
+
+# Request Reset Form
+class RequestResetForm(FlaskForm):
+    email = StringField("Email:",validators=[DataRequired(),Email()])
+    submit = SubmitField("Request Password Reset")
+
+    def validate_email(self,email):
+        user = User.query.filter_by(email = email.data).first()
+        if user is None:
+            raise ValidationError("This email is nothing use by any account.")
+
+# Reset Password Form
+class ResetPasswordForm(FlaskForm):
+    password = PasswordField("Password:",validators=[DataRequired()])
+    confirm_password = PasswordField("Verify password",validators=[DataRequired(),EqualTo("password")])
+    submit = SubmitField("Reset Password")

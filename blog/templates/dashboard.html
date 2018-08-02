@@ -9,38 +9,36 @@
 
 {% if articles %}
 
-<table class="table table-hover">
-    <thead>
-      <tr>
-        <th scope="col">id</th>
-        <th scope="col">Title</th>
-        <th scope="col">Author</th>
-        <th scope="col">Date</th>
-        <th scope="col"></th>
-        <th scope="col"></th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for article in articles  %}
-      {% if current_user.username == article.author.username %}
+  <table class="table table-hover">
+      <thead>
         <tr>
-          <th scope="row">{{article.id}}</th>
-          <td><a href="/article/{{article.id}}">{{article.title}}</a></td>
-          <td>{{article.author.username}}</td>
-          <td>{{article.date_posted.strftime("%Y-%m-%d")}}</td>
-          <td><a href="/edit/{{article.id}}" class="btn btn-danger">Edit</a></td>
-          <td><a href="/delete/{{article.id}}" class="btn btn-danger">Delete</a></td>
+          <th scope="col">id</th>
+          <th scope="col">Title</th>
+          <th scope="col">Author</th>
+          <th scope="col">Date</th>
+          <th scope="col"></th>
+          <th scope="col"></th>
         </tr>
-        {% endif %}
-      {% endfor %}
-
-    </tbody>
-  </table>
-
-{% else %}
-<div class="alert alert-danger">
-    You have not article yet.
-</div>
-{% endif %}
-{% endblock body %}
+      </thead>
+      <tbody>
+        {% for article in articles  %}
+        {% if current_user.username == article.author.username %}
+          <tr>
+            <th scope="row">{{article.id}}</th>
+            <td><a href="/article/{{article.id}}">{{article.title}}</a></td>
+            <td>{{article.author.username}}</td>
+            <td>{{article.date_posted.strftime("%Y-%m-%d")}}</td>
+            <td><a href="/edit/{{article.id}}" class="btn btn-danger">Edit</a></td>
+            <td><a href="/delete/{{article.id}}" class="btn btn-danger">Delete</a></td>
+          </tr>
+          {% endif %}
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+  <div class="alert alert-danger">
+      You have not article yet.
+  </div>
+  {% endif %}
+  {% endblock body %}
 
