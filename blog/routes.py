@@ -194,3 +194,10 @@ def reset_token(token):
         flash("Your password has been updated","success")
         return redirect(url_for("login"))
     return render_template("reset_token.html", title = "Reset Password",form = form)
+
+@app.route("/user/<string:username>")
+def user_articles(username):
+    user = User.query.filter_by(username = username).first_or_404()
+    articles = Article.query.filter_by(author = user)\
+    .order_by(Article.date_posted.desc())
+    return render_template("user_articles.html", articles = articles, user = user)
